@@ -11,7 +11,7 @@ Stable tag: 0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-The MainWP Key Maker plugin allow for easy form creation for the MainWP Skeleton Key Extension. 
+The MainWP Key Maker plugin allows for easy form creation for the MainWP Skeleton Key Extension. 
 
 
 == Description ==
