@@ -238,13 +238,18 @@ class MainWP_Key_Maker {
 	 * Render Key Maker button inside admin bar
 	 * Display content using thickbox popup
 	 */
-	public function  bar_render() {
+	public function bar_render() {
 		global $wp_admin_bar;
 
-		add_thickbox();
+		wp_register_script( 'mainwp-key-maker-colorbox', plugins_url( '/js/jquery.colorbox-min.js', __FILE__ ) );
+		wp_enqueue_script( 'mainwp-key-maker-colorbox' );
+
+		wp_register_style( 'mainwp-key-maker-colorbox', plugins_url( '/css/colorbox.css', __FILE__ ) );
+		wp_enqueue_style( 'mainwp-key-maker-colorbox' );
 
 		$args = array(
-			'title' => __( 'MainWP Key Maker', 'mainwp-key-maker' )
+			'title' => __( 'MainWP Key Maker', 'mainwp-key-maker' ),
+			'href'  => '#mainwp-key-maker-box'
 		);
 
 		$wp_admin_bar->add_node( $args );
@@ -256,11 +261,7 @@ class MainWP_Key_Maker {
 		</style>
 		<script>
 			jQuery(function () {
-				jQuery("#wp-admin-bar-mainwp-key-maker").on("click", function () {
-					// Fix for spinner - https://core.trac.wordpress.org/ticket/33311
-					tb_show('<?php  _e( 'MainWP Key Maker', 'mainwp-key-maker'); ?>', '#TB_inline?width=1200&height=600&inlineId=mainwp-key-maker-box', false);
-					jQuery("#TB_window").css('background', '#fcfcfc');
-				});
+				jQuery("#wp-admin-bar-mainwp-key-maker a").colorbox({inline: true, width: "1230px"});
 
 				jQuery(".mainwp-key-maker-debug-a").on("click", function () {
 					jQuery("#mainwp-key-maker-debug-" + jQuery(this).attr("ids")).toggle();
@@ -280,101 +281,102 @@ class MainWP_Key_Maker {
 		// Do we have anything to display?
 		$is_any_info = false;
 		?>
+		<div style="display:none;">
+			<div id="mainwp-key-maker-box">
+				<?php
+				$nonce = get_transient( 'mainwp_ein_' . $mainwp_key_maker_session_id );
 
-		<div id="mainwp-key-maker-box" style="display:none;">
-			<?php
-			$nonce = get_transient( 'mainwp_ein_' . $mainwp_key_maker_session_id );
+				if ( $nonce === false ) {
+					$nonce = array();
+				}
 
-			if ( $nonce === false ) {
-				$nonce = array();
-			}
+				$previous_datas = get_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id );
+				if ( $previous_datas !== false ) {
+					delete_transient( 'mainwp_ein_' . $mainwp_key_maker_session_id );
+					delete_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id );
+					foreach ( $previous_datas as $previous_counter => $previous_data ):
+						if ( ( isset( $previous_data['post'] ) && ! empty( $previous_data['post'] ) ) || ( isset( $previous_data['get'] ) && ! empty( $previous_data['get'] ) ) ):
+							$is_any_info = true;
+							?>
+							<div style="padding-bottom: 1em; margin-bottom: 1px Solid #000;">
+								<p>
 
-			$previous_datas = get_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id );
-			if ( $previous_datas !== false ) {
-				delete_transient( 'mainwp_ein_' . $mainwp_key_maker_session_id );
-				delete_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id );
-				foreach ( $previous_datas as $previous_counter => $previous_data ):
-					if ( ( isset( $previous_data['post'] ) && ! empty( $previous_data['post'] ) ) || ( isset( $previous_data['get'] ) && ! empty( $previous_data['get'] ) ) ):
-						$is_any_info = true;
-						?>
-						<div style="padding-bottom: 1em; margin-bottom: 1px Solid #000;">
-							<p>
-
-							<h3><?php _e( 'Previous request', 'mainwp-key-maker' ); ?>
-								( <?php echo( isset( $previous_data['url'] ) ? esc_html( $previous_data['url'] ) : __( 'Unknown url', 'mainwp-key-maker' ) ); ?>
-								) -
-								<a href="#"
-								   class="mainwp-key-maker-debug-a"
-								   style="text-decoration: none;"
-								   ids="<?php echo esc_attr( $previous_counter ); ?>"><span
-										class="dashicons dashicons-visibility"></span> <?php _e( 'Debug', 'mainwp-key-maker' ); ?>
-								</a></h3>
-							</p>
-							<div id="mainwp-key-maker-debug-<?php echo esc_attr( $previous_counter ); ?>"
-							     style="display:none; width: 1170px !important; margin-bottom: 1em;"
-							     class="postbox">
-								<div class="inside">
-									<pre><?php echo $this->custom_print_r( $previous_data, $nonce ); ?></pre>
+								<h3><?php _e( 'Previous request', 'mainwp-key-maker' ); ?>
+									( <?php echo( isset( $previous_data['url'] ) ? esc_html( $previous_data['url'] ) : __( 'Unknown url', 'mainwp-key-maker' ) ); ?>
+									) -
+									<a href="#"
+									   class="mainwp-key-maker-debug-a"
+									   style="text-decoration: none;"
+									   ids="<?php echo esc_attr( $previous_counter ); ?>"><span
+											class="dashicons dashicons-visibility"></span> <?php _e( 'Debug', 'mainwp-key-maker' ); ?>
+									</a></h3>
+								</p>
+								<div id="mainwp-key-maker-debug-<?php echo esc_attr( $previous_counter ); ?>"
+								     style="display:none; width: 1170px !important; margin-bottom: 1em;"
+								     class="postbox">
+									<div class="inside">
+										<pre><?php echo $this->custom_print_r( $previous_data, $nonce ); ?></pre>
+									</div>
 								</div>
+
+								<textarea rows="12"
+								          cols="90"
+								          style="width: 1170px;"
+								          readonly><?php echo esc_textarea( $this->parse_data( $previous_data, $nonce ) ); ?></textarea>
+
 							</div>
+							<?php
+						endif;
+					endforeach;
 
-							<textarea rows="12"
-							          cols="90"
-							          style="width: 1170px;"
-							          readonly><?php echo esc_textarea( $this->parse_data( $previous_data, $nonce ) ); ?></textarea>
 
+				}
+
+				$current_data         = array();
+				$current_data['post'] = $_POST;
+				$current_data['get']  = $_GET;
+				$current_data['url']  = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+				?>
+				<div style="padding-bottom: 1em; margin-bottom: 1px Solid #000;">
+					<?php
+					if (!empty($current_data['post']) || !empty($current_data['get'])):
+						$is_any_info = true;
+					?>
+						<p>
+
+						<h3>
+							<?php _e('Current request', 'mainwp-key-maker'); ?> ( <?php echo esc_html($current_data['url']); ?> ) - <a
+								href="#"
+								class="mainwp-key-maker-debug-a"
+								ids="current"
+								style="text-decoration: none;"><span
+									class="dashicons dashicons-visibility"></span> <?php _e('Debug', 'mainwp-key-maker'); ?>
+							</a></h3>
+						</p>
+
+						<div id="mainwp-key-maker-debug-current"
+							 style="display:none; width: 1170px !important; margin-bottom: 1em;"
+							 class="postbox">
+							<div class="inside">
+								<pre><?php echo $this->custom_print_r($current_data, $nonce); ?></pre>
+							</div>
 						</div>
+
+
+						<textarea rows="12"
+								  cols="90"
+								  style="width: 1170px;"
+								  readonly><?php echo esc_textarea($this->parse_data($current_data, $nonce)); ?></textarea>
+					<?php
+					endif;
+
+					if ( ! $is_any_info ):
+						?>
+						<b><?php _e( 'Please visit some page', 'mainwp-key-maker' ); ?></b>
 						<?php
 					endif;
-				endforeach;
-
-
-			}
-
-			$current_data         = array();
-			$current_data['post'] = $_POST;
-			$current_data['get']  = $_GET;
-			$current_data['url']  = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
-			?>
-			<div style="padding-bottom: 1em; margin-bottom: 1px Solid #000;">
-				<?php
-				if (!empty($current_data['post']) || !empty($current_data['get'])):
-					$is_any_info = true;
-				?>
-					<p>
-
-					<h3>
-						<?php _e('Current request', 'mainwp-key-maker'); ?> ( <?php echo esc_html($current_data['url']); ?> ) - <a
-							href="#"
-							class="mainwp-key-maker-debug-a"
-							ids="current"
-							style="text-decoration: none;"><span
-								class="dashicons dashicons-visibility"></span> <?php _e('Debug', 'mainwp-key-maker'); ?>
-						</a></h3>
-					</p>
-
-					<div id="mainwp-key-maker-debug-current"
-						 style="display:none; width: 1170px !important; margin-bottom: 1em;"
-						 class="postbox">
-						<div class="inside">
-							<pre><?php echo $this->custom_print_r($current_data, $nonce); ?></pre>
-						</div>
-					</div>
-
-
-					<textarea rows="12"
-							  cols="90"
-							  style="width: 1170px;"
-							  readonly><?php echo esc_textarea($this->parse_data($current_data, $nonce)); ?></textarea>
-				<?php
-				endif;
-
-				if ( ! $is_any_info ):
 					?>
-					<b><?php _e( 'Please visit some page', 'mainwp-key-maker' ); ?></b>
-					<?php
-				endif;
-				?>
+				</div>
 			</div>
 		</div>
 		<?php
