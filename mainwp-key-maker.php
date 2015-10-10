@@ -60,6 +60,7 @@ if ( ! function_exists( "mainwp_key_maker_store_request" ) ) {
 			$datas['post'] = $_POST;
 			$datas['get']  = $_GET;
 			$datas['url']  = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+			$datas['time'] = time();
 
 			$previous_data[] = $datas;
 
@@ -241,13 +242,17 @@ class MainWP_Key_Maker {
 	public function bar_render() {
 		global $wp_admin_bar;
 
-		wp_register_script( 'mainwp-key-maker-colorbox', plugins_url( '/js/jquery.colorbox-min.js', __FILE__ ) );
+		wp_register_script( 'mainwp-key-maker-colorbox', plugins_url( '/js/jquery.colorbox-min.js', __FILE__ ), array( 'jquery' ) );
 		wp_enqueue_script( 'mainwp-key-maker-colorbox' );
+
+		wp_register_script( 'mainwp-key-maker-zeroclipboard', plugins_url( '/js/ZeroClipboard.min.js', __FILE__ ), array( 'jquery' ) );
+		wp_enqueue_script( 'mainwp-key-maker-zeroclipboard' );
 
 		wp_register_style( 'mainwp-key-maker-colorbox', plugins_url( '/css/colorbox.css', __FILE__ ) );
 		wp_enqueue_style( 'mainwp-key-maker-colorbox' );
 
 		$args = array(
+			'id'    => 'mainwp-key-maker-adminbar-node',
 			'title' => __( 'MainWP Key Maker', 'mainwp-key-maker' ),
 			'href'  => '#mainwp-key-maker-box'
 		);
@@ -261,7 +266,33 @@ class MainWP_Key_Maker {
 		</style>
 		<script>
 			jQuery(function () {
-				jQuery("#wp-admin-bar-mainwp-key-maker a").colorbox({inline: true, width: "1230px"});
+				var client = new ZeroClipboard(jQuery(".mainwp-key-maker-textarea"));
+
+				client.on('ready', function (event) {
+					client.on("copy", function (event) {
+						event.clipboardData.setData("text/plain", event.target.innerHTML);
+					});
+
+					client.on('aftercopy', function (event) {
+						jQuery("#" + event.target.id + "-button").val('<?php _e('Copied!', 'mainwp-key-maker'); ?>');
+						setInterval(function () {
+							jQuery("#" + event.target.id + "-button").val('<?php _e('Copy to clipboard', 'mainwp-key-maker'); ?>');
+						}, 2000);
+					});
+				});
+
+				var client2 = new ZeroClipboard(jQuery(".mainwp-key-maker-copy-button"));
+
+				client2.on('ready', function (event) {
+					client2.on('aftercopy', function (event) {
+						event.target.value = '<?php _e('Copied!', 'mainwp-key-maker'); ?>';
+						setInterval(function () {
+							event.target.value = '<?php _e('Copy to clipboard', 'mainwp-key-maker'); ?>';
+						}, 2000);
+					});
+				});
+
+				jQuery("#wp-admin-bar-mainwp-key-maker-adminbar-node a").colorbox({inline: true, width: "1230px"});
 
 				jQuery(".mainwp-key-maker-debug-a").on("click", function () {
 					jQuery("#mainwp-key-maker-debug-" + jQuery(this).attr("ids")).toggle();
@@ -309,7 +340,7 @@ class MainWP_Key_Maker {
 									   style="text-decoration: none;"
 									   ids="<?php echo esc_attr( $previous_counter ); ?>"><span
 											class="dashicons dashicons-visibility"></span> <?php _e( 'Debug', 'mainwp-key-maker' ); ?>
-									</a></h3>
+									</a> - <?php echo date_i18n( "d-m-Y H:i:s", $previous_data['time'] ); ?></h3>
 								</p>
 								<div id="mainwp-key-maker-debug-<?php echo esc_attr( $previous_counter ); ?>"
 								     style="display:none; width: 1170px !important; margin-bottom: 1em;"
@@ -322,7 +353,17 @@ class MainWP_Key_Maker {
 								<textarea rows="12"
 								          cols="90"
 								          style="width: 1170px;"
+								          class="mainwp-key-maker-textarea"
+								          id="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>"
 								          readonly><?php echo esc_textarea( $this->parse_data( $previous_data, $nonce ) ); ?></textarea>
+
+								<p class="submit">
+									<input type="submit"
+									       id="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>-button"
+									       data-clipboard-target="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>"
+									       class="mainwp-key-maker-copy-button button button-primary"
+									       value="<?php _e( 'Copy to clipboard', 'mainwp-key-maker' ); ?>">
+								</p>
 
 							</div>
 							<?php
@@ -336,6 +377,7 @@ class MainWP_Key_Maker {
 				$current_data['post'] = $_POST;
 				$current_data['get']  = $_GET;
 				$current_data['url']  = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
+				$current_data['time'] = time();
 				?>
 				<div style="padding-bottom: 1em; margin-bottom: 1px Solid #000;">
 					<?php
@@ -351,7 +393,7 @@ class MainWP_Key_Maker {
 								ids="current"
 								style="text-decoration: none;"><span
 									class="dashicons dashicons-visibility"></span> <?php _e('Debug', 'mainwp-key-maker'); ?>
-							</a></h3>
+							</a> - <?php echo date_i18n("d-m-Y H:i:s", $current_data['time']); ?></h3>
 						</p>
 
 						<div id="mainwp-key-maker-debug-current"
@@ -366,7 +408,13 @@ class MainWP_Key_Maker {
 						<textarea rows="12"
 								  cols="90"
 								  style="width: 1170px;"
+								  class="mainwp-key-maker-textarea"
+								  id="mainwp-key-maker-textarea"
 								  readonly><?php echo esc_textarea($this->parse_data($current_data, $nonce)); ?></textarea>
+
+						<p class="submit">
+							<input type="submit" id="mainwp-key-maker-textarea-button" data-clipboard-target="mainwp-key-maker-textarea" class="mainwp-key-maker-copy-button button button-primary" value="<?php _e('Copy to clipboard', 'mainwp-key-maker'); ?>">
+						</p>
 					<?php
 					endif;
 
@@ -440,11 +488,19 @@ class MainWP_Key_Maker {
 					$array['nonce_field_name'] = $nonce[ $val ];
 					$array['nonce_field_arg']  = $key;
 				} else {
-					$array['field_type']             = 'text_field';
-					$array['text_field_description'] = $val;
-					$array['text_field_name']        = $key;
-					$array['text_field_value']       = $val;
-					$array['text_field_type']        = 'post';
+					if ( strpos( $val, "\n" ) !== false || strpos( $val, "\r" ) !== false ) {
+						$array['field_type']                 = 'textarea_field';
+						$array['textarea_field_description'] = $val;
+						$array['textarea_field_name']        = $key;
+						$array['textarea_field_value']       = $val;
+						$array['textarea_field_type']        = 'post';
+					} else {
+						$array['field_type']             = 'text_field';
+						$array['text_field_description'] = $val;
+						$array['text_field_name']        = $key;
+						$array['text_field_value']       = $val;
+						$array['text_field_type']        = 'post';
+					}
 				}
 
 				$out[] = http_build_query( $array );
