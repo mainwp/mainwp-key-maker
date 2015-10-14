@@ -263,6 +263,13 @@ class MainWP_Key_Maker {
 			#wp-admin-bar-mainwp-key-maker {
 				cursor: pointer;
 			}
+			.mainwp-km-info {
+				margin-top: 1em;
+				padding: .6em;
+				border-left: 4px Solid #7fb100;
+				box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
+				-webkit-box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
+			}
 		</style>
 		<script>
 			jQuery(function () {
@@ -274,10 +281,12 @@ class MainWP_Key_Maker {
 					});
 
 					client.on('aftercopy', function (event) {
-						jQuery("#" + event.target.id + "-button").val('<?php _e('Copied!', 'mainwp-key-maker'); ?>');
+						jQuery("#" + event.target.id + "-button").val('<?php _e('Copied to Clipboard!', 'mainwp-key-maker'); ?>');
+						jQuery("#" + event.target.id + "-button").classList.remove('button-primary');
 						setInterval(function () {
-							jQuery("#" + event.target.id + "-button").val('<?php _e('Copy to clipboard', 'mainwp-key-maker'); ?>');
-						}, 2000);
+							jQuery("#" + event.target.id + "-button").val('<?php _e('Copy to Clipboard', 'mainwp-key-maker'); ?>');
+							jQuery("#" + event.target.id + "-button").classList.add('button-primary');
+						}, 3000);
 					});
 				});
 
@@ -285,10 +294,12 @@ class MainWP_Key_Maker {
 
 				client2.on('ready', function (event) {
 					client2.on('aftercopy', function (event) {
-						event.target.value = '<?php _e('Copied!', 'mainwp-key-maker'); ?>';
+						event.target.value = '<?php _e('Copied to Clipboard!', 'mainwp-key-maker'); ?>';
+						event.target.classList.remove('button-primary');
 						setInterval(function () {
-							event.target.value = '<?php _e('Copy to clipboard', 'mainwp-key-maker'); ?>';
-						}, 2000);
+							event.target.value = '<?php _e('Copy to Clipboard', 'mainwp-key-maker'); ?>';
+							event.target.classList.add('button-primary');
+						}, 3000);
 					});
 				});
 
@@ -314,6 +325,7 @@ class MainWP_Key_Maker {
 		?>
 		<div style="display:none;">
 			<div id="mainwp-key-maker-box">
+
 				<?php
 				$nonce = get_transient( 'mainwp_ein_' . $mainwp_key_maker_session_id );
 
@@ -322,6 +334,7 @@ class MainWP_Key_Maker {
 				}
 
 				$previous_datas = get_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id );
+
 				if ( $previous_datas !== false ) {
 					delete_transient( 'mainwp_ein_' . $mainwp_key_maker_session_id );
 					delete_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id );
@@ -331,16 +344,21 @@ class MainWP_Key_Maker {
 							?>
 							<div style="padding-bottom: 1em; margin-bottom: 1px Solid #000;">
 								<p>
-
-								<h3><?php _e( 'Previous request', 'mainwp-key-maker' ); ?>
-									( <?php echo( isset( $previous_data['url'] ) ? esc_html( $previous_data['url'] ) : __( 'Unknown url', 'mainwp-key-maker' ) ); ?>
-									) -
-									<a href="#"
-									   class="mainwp-key-maker-debug-a"
-									   style="text-decoration: none;"
-									   ids="<?php echo esc_attr( $previous_counter ); ?>"><span
-											class="dashicons dashicons-visibility"></span> <?php _e( 'Debug', 'mainwp-key-maker' ); ?>
-									</a> - <?php echo date_i18n( "d-m-Y H:i:s", $previous_data['time'] ); ?></h3>
+								<h2 style="margin-bottom: .3em;"><?php _e( 'Post-submission Request', 'mainwp-key-maker' ); ?></h2>
+									<em>( <?php echo date_i18n( "d-m-Y H:i:s", $previous_data['time'] ); ?> )</em>
+									<?php echo( isset( $previous_data['url'] ) ? esc_html( $previous_data['url'] ) : __( 'Unknown url', 'mainwp-key-maker' ) ); ?>
+									<span style="float: right; margin-right: 1.5em;">
+										<a href="#"
+										   class="mainwp-key-maker-debug-a button"
+										   style="text-decoration: none;"
+										   ids="<?php echo esc_attr( $previous_counter ); ?>"><?php _e( 'Verify Form Fields and Values', 'mainwp-key-maker' ); ?>
+										</a>
+										<input type="submit"
+											   id="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>-button"
+											   data-clipboard-target="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>"
+											   class="mainwp-key-maker-copy-button button button-primary"
+											   value="<?php _e( 'Copy to Clipboard', 'mainwp-key-maker' ); ?>">
+									</span>
 								</p>
 								<div id="mainwp-key-maker-debug-<?php echo esc_attr( $previous_counter ); ?>"
 								     style="display:none; width: 1170px !important; margin-bottom: 1em;"
@@ -356,15 +374,6 @@ class MainWP_Key_Maker {
 								          class="mainwp-key-maker-textarea"
 								          id="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>"
 								          readonly><?php echo esc_textarea( $this->parse_data( $previous_data, $nonce ) ); ?></textarea>
-
-								<p class="submit">
-									<input type="submit"
-									       id="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>-button"
-									       data-clipboard-target="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>"
-									       class="mainwp-key-maker-copy-button button button-primary"
-									       value="<?php _e( 'Copy to clipboard', 'mainwp-key-maker' ); ?>">
-								</p>
-
 							</div>
 							<?php
 						endif;
@@ -386,14 +395,22 @@ class MainWP_Key_Maker {
 					?>
 						<p>
 
-						<h3>
-							<?php _e('Current request', 'mainwp-key-maker'); ?> ( <?php echo esc_html($current_data['url']); ?> ) - <a
-								href="#"
-								class="mainwp-key-maker-debug-a"
-								ids="current"
-								style="text-decoration: none;"><span
-									class="dashicons dashicons-visibility"></span> <?php _e('Debug', 'mainwp-key-maker'); ?>
-							</a> - <?php echo date_i18n("d-m-Y H:i:s", $current_data['time']); ?></h3>
+						<h2 style="margin-bottom: .3em;"><?php _e('Pre-submission Request', 'mainwp-key-maker'); ?></h2>
+						<em>( <?php echo date_i18n("d-m-Y H:i:s", $current_data['time']); ?> )</em>
+						<?php echo esc_html($current_data['url']); ?>
+							<span style="float: right; margin-right: 1.5em;">
+							  <a
+									href="#"
+									class="mainwp-key-maker-debug-a button"
+									ids="current"
+									style="text-decoration: none;"><?php _e('Verify Form Fields and Values', 'mainwp-key-maker'); ?>
+								</a>
+								<input type="submit"
+									   id="mainwp-key-maker-textarea-button"
+									   data-clipboard-target="mainwp-key-maker-textarea"
+									   class="mainwp-key-maker-copy-button button button-primary"
+									   value="<?php _e('Copy to clipboard', 'mainwp-key-maker'); ?>">
+							</span>
 						</p>
 
 						<div id="mainwp-key-maker-debug-current"
@@ -411,16 +428,21 @@ class MainWP_Key_Maker {
 								  class="mainwp-key-maker-textarea"
 								  id="mainwp-key-maker-textarea"
 								  readonly><?php echo esc_textarea($this->parse_data($current_data, $nonce)); ?></textarea>
-
-						<p class="submit">
-							<input type="submit" id="mainwp-key-maker-textarea-button" data-clipboard-target="mainwp-key-maker-textarea" class="mainwp-key-maker-copy-button button button-primary" value="<?php _e('Copy to clipboard', 'mainwp-key-maker'); ?>">
-						</p>
 					<?php
+					endif;
+
+					if ( $is_any_info ):
+						?>
+						<div class="mainwp-km-info">
+							<?php _e('The "Verify Form Fields and Values" button allows you to tell if the Key will contain the information you want.', 'mainwp-key-maker'); ?><br/>
+							<?php _e('If it does not, you may need to submit the form in order for the Key Maker to be able to correctly gather the form fields and values.', 'mainwp-key-maker'); ?>
+						</div>
+						<?php
 					endif;
 
 					if ( ! $is_any_info ):
 						?>
-						<b><?php _e( 'Please visit some page', 'mainwp-key-maker' ); ?></b>
+						<p><strong><?php _e( 'No form detected. You may have to submit the form before Key Maker is able to find the form and make the Key.', 'mainwp-key-maker' ); ?></strong></p>
 						<?php
 					endif;
 					?>
