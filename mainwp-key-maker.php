@@ -322,11 +322,17 @@ class MainWP_Key_Maker {
 
 		// Do we have anything to display?
 		$is_any_info = false;
+		$is_there_pre_request = false;
 		?>
 		<div style="display:none;">
 			<div id="mainwp-key-maker-box">
-
+				<span style="float: right;">
+					<a href="https://mainwp.com" target="_blank" title="MainWP"><img style="height: 40px; margin-right: 15px;" src="<?php echo plugins_url('images/logo.png', __FILE__); ?>" alt="MainWP" /></a>
+				</span>
+				<h1><?php _e( 'MainWP Key Maker', 'mainwp-key-maker'); ?></h1>
+				<div style="clear: both;"></div>
 				<?php
+
 				$nonce = get_transient( 'mainwp_ein_' . $mainwp_key_maker_session_id );
 
 				if ( $nonce === false ) {
@@ -341,8 +347,19 @@ class MainWP_Key_Maker {
 					foreach ( $previous_datas as $previous_counter => $previous_data ):
 						if ( ( isset( $previous_data['post'] ) && ! empty( $previous_data['post'] ) ) || ( isset( $previous_data['get'] ) && ! empty( $previous_data['get'] ) ) ):
 							$is_any_info = true;
+							$is_there_pre_request = true;
 							?>
 							<div style="padding-bottom: 1em; margin-bottom: 1px Solid #000;">
+								<?php
+								if ( $is_there_pre_request ):
+									?>
+									<div class="mainwp-km-info">
+										<em><?php _e('The "Verify Form Fields and Values" button allows you to tell if the Key will contain the information you want.', 'mainwp-key-maker'); ?></em><br/>
+										<em><?php _e('If it does not, you may need to submit the form in order for the Key Maker to be able to correctly gather the form fields and values.', 'mainwp-key-maker'); ?></em>
+									</div>
+									<?php
+								endif;
+								?>
 								<p>
 								<h2 style="margin-bottom: .3em;"><?php _e( 'Post-submission Request', 'mainwp-key-maker' ); ?></h2>
 									<em>( <?php echo date_i18n( "d-m-Y H:i:s", $previous_data['time'] ); ?> )</em>
@@ -393,8 +410,17 @@ class MainWP_Key_Maker {
 					if (!empty($current_data['post']) || !empty($current_data['get'])):
 						$is_any_info = true;
 					?>
+						<?php
+							if ( ! $is_there_pre_request ):
+								?>
+								<div class="mainwp-km-info">
+									<em><?php _e('The "Verify Form Fields and Values" button allows you to tell if the Key will contain the information you want.', 'mainwp-key-maker'); ?></em><br/>
+									<em><?php _e('If it does not, you may need to submit the form in order for the Key Maker to be able to correctly gather the form fields and values.', 'mainwp-key-maker'); ?></em>
+								</div>
+								<?php
+							endif;
+						?>
 						<p>
-
 						<h2 style="margin-bottom: .3em;"><?php _e('Pre-submission Request', 'mainwp-key-maker'); ?></h2>
 						<em>( <?php echo date_i18n("d-m-Y H:i:s", $current_data['time']); ?> )</em>
 						<?php echo esc_html($current_data['url']); ?>
@@ -431,18 +457,9 @@ class MainWP_Key_Maker {
 					<?php
 					endif;
 
-					if ( $is_any_info ):
-						?>
-						<div class="mainwp-km-info">
-							<?php _e('The "Verify Form Fields and Values" button allows you to tell if the Key will contain the information you want.', 'mainwp-key-maker'); ?><br/>
-							<?php _e('If it does not, you may need to submit the form in order for the Key Maker to be able to correctly gather the form fields and values.', 'mainwp-key-maker'); ?>
-						</div>
-						<?php
-					endif;
-
 					if ( ! $is_any_info ):
 						?>
-						<p><strong><?php _e( 'No form detected. You may have to submit the form before Key Maker is able to find the form and make the Key.', 'mainwp-key-maker' ); ?></strong></p>
+						<div class="mainwp-km-info"><?php _e( 'No form detected. You may have to submit the form before Key Maker is able to find the form and make the Key.', 'mainwp-key-maker' ); ?></div>
 						<?php
 					endif;
 					?>
