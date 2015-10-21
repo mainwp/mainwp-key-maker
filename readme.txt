@@ -30,4 +30,4 @@ Install the Key Maker plugin on any WordPress site to quickly copy form fields f
 1. The MainWP Key Maker form copy fields
 
 == Changelog ==
-* First version - 09-21-15
+* First version - 10-21-15
