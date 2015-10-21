@@ -1,8 +1,8 @@
 === MainWP Key Maker ===
-Contributors: mainwp
+Contributors: MainWP
 Donate link: 
 Tags: MainWP Key Maker, MainWP, MainWP Child, MainWP Skeleton Key Extension, form filler, forms, form
-Author: mainwp
+Author: MainWP
 Author URI: https://mainwp.com
 Plugin URI: https://mainwp.com
 Requires at least: 3.6
