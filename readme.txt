@@ -1,7 +1,7 @@
 === MainWP Key Maker ===
-Contributors: MainWP
+Contributors: mainwp
 Donate link: 
-Tags: MainWP Key Maker, MainWP, MainWP Child, MainWP Skeleton Key Extension, form filler, forms, form
+Tags: MainWP Key Maker, MainWP, MainWP Child, MainWP Bulk Settings Extension, form filler, forms, form, settings, bulk settings, plugin settings, theme settings
 Author: MainWP
 Author URI: https://mainwp.com
 Plugin URI: https://mainwp.com
@@ -11,14 +11,14 @@ Stable tag: 0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-The MainWP Key Maker plugin allows for easy form creation for the MainWP Skeleton Key Extension. 
+The MainWP Key Maker plugin copies settings for the MainWP Bulk Settings Manager Extension. 
 
 
 == Description ==
 
-**Note: This plugin is only useful if you are using [MainWP](https://wordpress.org/plugins/mainwp/) and the Skeleton Key Extension.**
+**Note: This plugin is only useful if you are using [MainWP](https://wordpress.org/plugins/mainwp/) and the [Bulk Settings Manager Extension](https://extensions.mainwp.com/product/mainwp-bulk-settings-manager-extension/).**
 
-Install the Key Maker plugin on any WordPress site to quickly copy form fields for import into MainWP Skeleton Key Extension.
+Install the Key Maker plugin on any WordPress site to quickly copy form settings for import into MainWP Bulk Settings Manager Extension.
 
 == Installation ==
 
