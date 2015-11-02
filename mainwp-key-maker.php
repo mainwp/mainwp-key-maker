@@ -282,10 +282,10 @@ class MainWP_Key_Maker {
 
 					client.on('aftercopy', function (event) {
 						jQuery("#" + event.target.id + "-button").val('<?php _e('Copied to Clipboard!', 'mainwp-key-maker'); ?>');
-						jQuery("#" + event.target.id + "-button").classList.remove('button-primary');
+						jQuery("#" + event.target.id + "-button").removeClass('button-primary');
 						setInterval(function () {
 							jQuery("#" + event.target.id + "-button").val('<?php _e('Copy to Clipboard', 'mainwp-key-maker'); ?>');
-							jQuery("#" + event.target.id + "-button").classList.add('button-primary');
+							jQuery("#" + event.target.id + "-button").addClass('button-primary');
 						}, 3000);
 					});
 				});
@@ -581,9 +581,9 @@ class MainWP_Key_Maker {
 		$content = http_build_query( $array ) . '&' . implode( '&', $out );
 		$hash    = sha1( $content );
 
-		$return = "-----BEGIN SKELETON KEY-----\r\n";
+		$return = "-----BEGIN BULK SETTINGS MANAGER KEY-----\r\n";
 		$return .= base64_encode( $hash . '|' . $content );
-		$return .= "\r\n-----END SKELETON KEY-----\r\n";
+		$return .= "\r\n-----END BULK SETTINGS MANAGER KEY-----\r\n";
 
 		return $return;
 	}
