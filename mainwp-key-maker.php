@@ -2,7 +2,7 @@
 /*
 	Plugin Name: MainWP Key Maker
 	Plugin URI: https://mainwp.com/
-	Description: Easily convert a form into a "key" to use with the MainWP Skeleton Key Extension
+	Description: Easily convert a form into a "key" to use with the MainWP Bulk Settings Manager Extension
 	Author: MainWP
 	Author URI: https://mainwp.com
 	Version: 0.1
