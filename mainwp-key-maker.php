@@ -273,6 +273,8 @@ class MainWP_Key_Maker {
 		</style>
 		<script>
 			jQuery(function () {
+				ZeroClipboard.config( { swfPath: "<?php echo plugins_url( '/js/ZeroClipboard.swf', __FILE__ ); ?>" } );
+
 				var client = new ZeroClipboard(jQuery(".mainwp-key-maker-textarea"));
 
 				client.on('ready', function (event) {
