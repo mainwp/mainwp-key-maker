@@ -21,12 +21,20 @@ if ( ! function_exists( "mainwp_key_maker_get_session_id" ) ) {
 	function mainwp_key_maker_get_session_id() {
 		global $mainwp_key_maker_session_id;
 
-		// We use global so this happen only once
-		if ( defined( "AUTH_COOKIE" ) && isset( $_COOKIE[ AUTH_COOKIE ] ) && empty( $mainwp_key_maker_session_id ) ) {
-			// Different users can share one account - so use session id
-			$cookie_elements = explode( '|', $_COOKIE[ AUTH_COOKIE ] );
-			if ( isset( $cookie_elements[2] ) ) {
-				$mainwp_key_maker_session_id = substr( (string) $cookie_elements[2], 0, 30 );
+		// We use global so this happen only once		
+		if (empty($mainwp_key_maker_session_id)) {
+			if ( defined( "AUTH_COOKIE" ) && isset( $_COOKIE[ AUTH_COOKIE ] )) {
+				// Different users can share one account - so use session id
+				$cookie_elements = explode( '|', $_COOKIE[ AUTH_COOKIE ] );
+				if ( isset( $cookie_elements[2] ) ) {
+					$mainwp_key_maker_session_id = substr( (string) $cookie_elements[2], 0, 30 );
+				}
+			} else if ( defined( "SECURE_AUTH_COOKIE" ) && isset( $_COOKIE[ SECURE_AUTH_COOKIE ] )) {
+				// Different users can share one account - so use session id
+				$cookie_elements = explode( '|', $_COOKIE[ SECURE_AUTH_COOKIE ] );
+				if ( isset( $cookie_elements[2] ) ) {
+					$mainwp_key_maker_session_id = substr( (string) $cookie_elements[2], 0, 30 );
+				}				
 			}
 		}
 	}
