@@ -6,8 +6,8 @@ Author: MainWP
 Author URI: https://mainwp.com
 Plugin URI: https://mainwp.com
 Requires at least: 3.6
-Tested up to: 4.3.1
-Stable tag: 0.2
+Tested up to: 4.6.1
+Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,7 +16,7 @@ The MainWP Key Maker plugin copies settings for the MainWP Bulk Settings Manager
 
 == Description ==
 
-**Note: This plugin is only useful if you are using [MainWP](https://wordpress.org/plugins/mainwp/) and the [Bulk Settings Manager Extension](https://extensions.mainwp.com/product/mainwp-bulk-settings-manager-extension/).**
+**Note: This plugin is only useful if you are using [MainWP](https://wordpress.org/plugins/mainwp/) and the [Bulk Settings Manager Extension](http://mainwp.com/extension/bulk-settings-manager/).**
 
 Install the Key Maker plugin on any WordPress site to quickly copy form settings for import into MainWP Bulk Settings Manager Extension.
 
@@ -30,4 +30,8 @@ Install the Key Maker plugin on any WordPress site to quickly copy form settings
 1. The MainWP Key Maker form copy fields
 
 == Changelog ==
+
+= 1.0 - 11-9-2016 =
+* Fixed: Issue with creating keys on HTTPS sites
+
 * First version - 10-21-15
