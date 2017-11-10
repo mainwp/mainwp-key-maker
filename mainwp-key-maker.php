@@ -45,7 +45,7 @@ if ( ! function_exists( "mainwp_key_maker_store_request" ) ) {
 	/**
 	 * Store $_GET/$_POST inside transient for further use
 	 */
-	function mainwp_key_maker_store_request() {
+	function mainwp_key_maker_store_request($temp_saving = false) {
 		global $mainwp_key_maker_session_id, $mainwp_key_maker_is_redirect;
 
 		mainwp_key_maker_get_session_id();
@@ -57,10 +57,25 @@ if ( ! function_exists( "mainwp_key_maker_store_request" ) ) {
 				return;
 			}
 
-			$previous_data = get_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id );
-			if ( $previous_data === false ) {
-				$previous_data = array();
+			$saved_datas = get_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id );
+			
+            
+            if ( $saved_datas === false ) {
+				$saved_datas = array();
 			}
+            
+            $previous_datas = array();
+            
+            if (!$temp_saving) {
+                foreach ( $saved_datas as $data_counter => $data ) {
+                    if (isset($data['_temp_saving'])) {
+                                continue; // avoid
+                    }
+                    $previous_datas[] = $data;
+                }                    
+            } else {
+                $previous_datas = $saved_datas;
+            }
 
 			$datas = array();
 
@@ -69,10 +84,14 @@ if ( ! function_exists( "mainwp_key_maker_store_request" ) ) {
 			$datas['get']  = $_GET;
 			$datas['url']  = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
 			$datas['time'] = time();
+            
+            if ($temp_saving) {
+                $datas['_temp_saving'] = true;
+            }
+            
+			$previous_datas[] = $datas;
 
-			$previous_data[] = $datas;
-
-			set_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id, $previous_data, 90 );
+			set_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id, $previous_datas, 90 );
 			$mainwp_key_maker_is_redirect = true;
 		}
 	}
@@ -120,13 +139,13 @@ if ( ! function_exists( 'wp_redirect' ) ) :
 		if ( ! $location ) {
 			return false;
 		}
-
+       
 		$location = wp_sanitize_redirect( $location );
 
 		if ( ! $is_IIS && PHP_SAPI != 'cgi-fcgi' ) {
 			status_header( $status );
 		} // This causes problems on IIS and some FastCGI setups
-
+        
 		mainwp_key_maker_store_request();
 
 		header( "Location: $location", true, $status );
@@ -239,6 +258,9 @@ class MainWP_Key_Maker {
 			return;
 		}
 
+        // temporary saving to fix if none wp-redirect
+        mainwp_key_maker_store_request($temp = true);
+        
 		add_action( 'wp_before_admin_bar_render', array( $this, 'bar_render' ), 999 );
 		add_action( 'admin_footer', array( $this, 'toolbar' ), 999 );
 	}
@@ -356,6 +378,11 @@ class MainWP_Key_Maker {
 					delete_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id );
 					foreach ( $previous_datas as $previous_counter => $previous_data ):
 						if ( ( isset( $previous_data['post'] ) && ! empty( $previous_data['post'] ) ) || ( isset( $previous_data['get'] ) && ! empty( $previous_data['get'] ) ) ):
+
+                            if (isset($previous_data['_temp_saving'])) {
+                                unset($previous_data['_temp_saving']);
+                            }                                
+                            
 							$is_any_info = true;
 							$is_there_pre_request = true;
 							?>
