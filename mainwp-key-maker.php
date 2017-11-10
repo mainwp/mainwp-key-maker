@@ -5,7 +5,7 @@
 	Description: Easily convert a form into a "key" to use with the MainWP Bulk Settings Manager Extension
 	Author: MainWP
 	Author URI: https://mainwp.com
-	Version: 1.0
+	Version: 1.1
  */
 
 // If we made redirection in this session
