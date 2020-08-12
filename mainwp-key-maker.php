@@ -1,4 +1,6 @@
 <?php
+/** MainWP Key Maker.*/
+
 /*
 	Plugin Name: MainWP Key Maker
 	Plugin URI: https://mainwp.com/
@@ -8,20 +10,21 @@
 	Version: 1.1
  */
 
-// If we made redirection in this session
+// Check whether we made a redirection in this session.
 $mainwp_key_maker_is_redirect = false;
-// Store current user session id
+
+// Store current user session id.
 $mainwp_key_maker_session_id = "";
 
-
 if ( ! function_exists( "mainwp_key_maker_get_session_id" ) ) {
+
 	/**
-	 * Get current user session id
+	 * Get current user session id.
 	 */
 	function mainwp_key_maker_get_session_id() {
 		global $mainwp_key_maker_session_id;
 
-		// We use global so this happen only once		
+		// We use global so this happen only once	.
 		if (empty($mainwp_key_maker_session_id)) {
 			if ( defined( "AUTH_COOKIE" ) && isset( $_COOKIE[ AUTH_COOKIE ] )) {
 				// Different users can share one account - so use session id
@@ -40,26 +43,33 @@ if ( ! function_exists( "mainwp_key_maker_get_session_id" ) ) {
 	}
 }
 
-
 if ( ! function_exists( "mainwp_key_maker_store_request" ) ) {
+
 	/**
-	 * Store $_GET/$_POST inside transient for further use
-	 */
-	function mainwp_key_maker_store_request($temp_saving = false) {
+	 * Store $_GET and $_POST inside transient for further use.
+     *
+     * @param false $temp_saving Check whether or not the data is to be temporarily saved.
+     */
+	function mainwp_key_maker_store_request( $temp_saving = false ) {
+
+	    /**
+         * @global string $mainwp_key_maker_session_id MainWP Key Maker session ID.
+         * @global bool $mainwp_key_maker_is_redirect Whether this is a redirect.
+         */
 		global $mainwp_key_maker_session_id, $mainwp_key_maker_is_redirect;
 
 		mainwp_key_maker_get_session_id();
 
-		// Only for logged
+		// Only for logged.
 		if ( ! empty( $mainwp_key_maker_session_id ) ) {
-			// Skip heartbleeed WordPress action
+
+			// Skip heartbleed WordPress action.
 			if ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'heartbeat' && isset( $_REQUEST['screen_id'] ) ) {
 				return;
 			}
 
 			$saved_datas = get_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id );
-			
-            
+
             if ( $saved_datas === false ) {
 				$saved_datas = array();
 			}
@@ -69,7 +79,7 @@ if ( ! function_exists( "mainwp_key_maker_store_request" ) ) {
             if (!$temp_saving) {
                 foreach ( $saved_datas as $data_counter => $data ) {
                     if (isset($data['_temp_saving'])) {
-                                continue; // avoid
+                                continue; // avoid.
                     }
                     $previous_datas[] = $data;
                 }                    
@@ -79,7 +89,7 @@ if ( ! function_exists( "mainwp_key_maker_store_request" ) ) {
 
 			$datas = array();
 
-			// Store values in transient so we have access to them in next page
+			// Store values in transient so we have access to them in next page.
 			$datas['post'] = $_POST;
 			$datas['get']  = $_GET;
 			$datas['url']  = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'];
@@ -97,13 +107,13 @@ if ( ! function_exists( "mainwp_key_maker_store_request" ) ) {
 	}
 }
 
-// We add additional functionality to wp_redirect and wp_verify_nonce for administrators
+// We add additional functionality to wp_redirect and wp_verify_nonce for administrators.
 if ( ! function_exists( 'wp_redirect' ) ) :
 
 	/**
-	 * Redirects to another page.
-	 * Additionally, stores $_GET, $_POST and url in transient
-	 *
+	 * Redirects to another page
+	 *  Additionally, stores $_GET, $_POST and url in transient.
+     *
 	 * @since 1.5.1
 	 *
 	 * @global bool $is_IIS
@@ -113,7 +123,9 @@ if ( ! function_exists( 'wp_redirect' ) ) :
 	 *
 	 * @return bool False if $location is not provided, true otherwise.
 	 */
-	function wp_redirect( $location, $status = 302 ) {
+    function wp_redirect( $location, $status = 302 ) {
+        
+        /** @global object $is_IIS IIS instance. */
 		global $is_IIS;
 
 		/**
@@ -144,7 +156,7 @@ if ( ! function_exists( 'wp_redirect' ) ) :
 
 		if ( ! $is_IIS && PHP_SAPI != 'cgi-fcgi' ) {
 			status_header( $status );
-		} // This causes problems on IIS and some FastCGI setups
+		} // This causes problems on IIS and some FastCGI setups.
         
 		mainwp_key_maker_store_request();
 
@@ -155,22 +167,23 @@ if ( ! function_exists( 'wp_redirect' ) ) :
 endif;
 
 if ( ! function_exists( 'wp_verify_nonce' ) ) :
+
 	/**
-	 * Verify that correct nonce was used with time limit.
-	 * Additionally stores name of nonce action in transient
+	 * Verify that correct nonce was used with time limit,
+	 * Additionally stores name of nonce action in transient.
 	 *
 	 * The user is given an amount of time to use the token, so therefore, since the
 	 * UID and $action remain the same, the independent variable is the time.
 	 *
 	 * @since 2.0.3
 	 *
-	 * @param string $nonce Nonce that was used in the form to verify
+	 * @param string $nonce Nonce that was used in the form to verify.
 	 * @param string|int $action Should give context to what is taking place and be the same when nonce was created.
 	 *
 	 * @return false|int False if the nonce is invalid, 1 if the nonce is valid and generated between
 	 *                   0-12 hours ago, 2 if the nonce is valid and generated between 12-24 hours ago.
 	 */
-	function wp_verify_nonce( $nonce, $action = - 1 ) {
+    function wp_verify_nonce( $nonce, $action = - 1 ) {
 		global $mainwp_key_maker_session_id;
 
 		if ( ! empty( $mainwp_key_maker_session_id ) ) {
@@ -187,6 +200,7 @@ if ( ! function_exists( 'wp_verify_nonce' ) ) :
 		$user  = wp_get_current_user();
 		$uid   = (int) $user->ID;
 		if ( ! $uid ) {
+
 			/**
 			 * Filter whether the user who generated the nonce is logged out.
 			 *
@@ -205,60 +219,71 @@ if ( ! function_exists( 'wp_verify_nonce' ) ) :
 		$token = wp_get_session_token();
 		$i     = wp_nonce_tick();
 
-		// Nonce generated 0-12 hours ago
+		// Nonce generated 0-12 hours ago.
 		$expected = substr( wp_hash( $i . '|' . $action . '|' . $uid . '|' . $token, 'nonce' ), - 12, 10 );
 		if ( hash_equals( $expected, $nonce ) ) {
 			return 1;
 		}
 
-		// Nonce generated 12-24 hours ago
+		// Nonce generated 12-24 hours ago.
 		$expected = substr( wp_hash( ( $i - 1 ) . '|' . $action . '|' . $uid . '|' . $token, 'nonce' ), - 12, 10 );
 		if ( hash_equals( $expected, $nonce ) ) {
 			return 2;
 		}
 
-		// Invalid nonce
+		// Invalid nonce.
 		return false;
 	}
 endif;
 
 if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-	// We want to support ajax calls also
+
+	// We want to support ajax calls also.
 	mainwp_key_maker_store_request();
 }
 
+/**
+ * Class MainWP_Key_Maker.
+ */
 class MainWP_Key_Maker {
 
-	public function __construct() {
+    /**
+     * MainWP_Key_Maker constructor.
+     */
+    public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
 	}
 
-	public function init() {
+    /**
+     * Initiate
+     */
+    public function init() {
 		mainwp_key_maker_get_session_id();
 
 		if ( ! current_user_can( 'manage_options' ) || ! is_admin() ) {
 			return;
 		}
 
+		/** @global bool $mainwp_key_maker_is_redirect Redirect check. */
 		global $mainwp_key_maker_is_redirect;
 
-		// Display redirect data on next page
+		// Display redirect data on next page.
 		if ( $mainwp_key_maker_is_redirect ) {
 			return;
 		}
 
-		// Skip Ajax
+		// Skip Ajax.
 		if ( defined( 'XMLRPC_REQUEST' ) || defined( 'DOING_AJAX' ) || defined( 'IFRAME_REQUEST' ) ) {
 			return;
 		}
 
-		// Don't process if fatal error
+		// Don't process if fatal error.
 		$error = error_get_last();
 		if ( ! empty( $error ) && ( $error['type'] & ( E_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR ) ) ) {
 			return;
 		}
 
-        // temporary saving to fix if none wp-redirect
+        // temporary saving to fix if none wp-redirect.
         mainwp_key_maker_store_request($temp = true);
         
 		add_action( 'wp_before_admin_bar_render', array( $this, 'bar_render' ), 999 );
@@ -266,10 +291,12 @@ class MainWP_Key_Maker {
 	}
 
 	/**
-	 * Render Key Maker button inside admin bar
-	 * Display content using thickbox popup
+	 * Render Key Maker button inside admin bar &
+	 * Display content using thickbox popup.
 	 */
 	public function bar_render() {
+
+	    /** @global object $wp_admin_bar WordPress Admin Bar instance. */
 		global $wp_admin_bar;
 
 		wp_register_script( 'mainwp-key-maker-colorbox', plugins_url( '/js/jquery.colorbox-min.js', __FILE__ ), array( 'jquery' ) );
@@ -347,12 +374,12 @@ class MainWP_Key_Maker {
 	}
 
 	/**
-	 * Display content for admin bar button
+	 * Display content for admin bar button.
 	 */
 	public function toolbar() {
 		global $mainwp_key_maker_session_id;
 
-		// Do we have anything to display?
+		// Check if we have anything to display.
 		$is_any_info = false;
 		$is_there_pre_request = false;
 		?>
@@ -507,24 +534,26 @@ class MainWP_Key_Maker {
 	}
 
 	/**
-	 * @param $data
-	 * @param $nonce
+     * Custom sanitized print_r() function.
+     *
+     * Print $_GET and $_POST using print_r with XSS protection.
+     *
+	 * @param string $data Data to print.
+	 * @param string $nonce Security nonce.
 	 *
-	 * Print $_GET and $_POST using print_r with XSS protection
-	 *
-	 * @return string
+	 * @return string Return escaped string & print to screen.
 	 */
 	public function custom_print_r( $data, $nonce ) {
 		return esc_html( print_r( $this->check_nonces( $data, $nonce ), true ) );
 	}
 
 	/**
-	 * @param $data
-	 * @param $nonce
+     * Recursive check if nonce field exists in array.
+     *
+     * @param array $data Data to print.
+     * @param string $nonce Security nonce.
 	 *
-	 * Recursive check if in array, nonce field exist
-	 *
-	 * @return array
+	 * @return array Return trimmed array.
 	 */
 	public function check_nonces( $data, $nonce ) {
 		$new = array();
@@ -545,12 +574,12 @@ class MainWP_Key_Maker {
 	}
 
 	/**
-	 * @param $data
-	 * @param $nonce
+     * Parse data in readable format for Skeleton Key.
+     *
+     * @param array $data Data to print.
+     * @param string $nonce Security nonce.
 	 *
-	 * Parse datas in format readable for Skeleton Key
-	 *
-	 * @return string
+	 * @return string Return string in readable format.
 	 */
 	public function parse_data( $data, $nonce ) {
 		$out = array();
@@ -626,13 +655,13 @@ class MainWP_Key_Maker {
 	}
 
 	/**
-	 * @param $array
-	 * @param string $previous
+     * Convert multidimensional array into single dimensional array
+     * Something like http[like][array][structure].
+     *
+	 * @param array $array Multidimensional array.
+	 * @param string $previous Previous value.
 	 *
-	 * Convert multidimensional array into single dimensional array
-	 * Something like http[like][array][structure]
-	 *
-	 * @return array
+	 * @return array Return formatted array.
 	 */
 	public function flatten_array( $array, $previous = "" ) {
 		$out = array();
