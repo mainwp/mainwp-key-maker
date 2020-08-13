@@ -8,6 +8,10 @@
 	Author: MainWP
 	Author URI: https://mainwp.com
 	Version: 1.1
+	Requires at least: 3.6
+	Text Domain: mainwp-key-maker
+	License: GPL v2 or later
+	License URI: https://www.gnu.org/licenses/gpl-2.0.html
  */
 
 // Check whether we made a redirection in this session.
