@@ -22,6 +22,12 @@ if ( ! function_exists( "mainwp_key_maker_get_session_id" ) ) {
 	 * Get current user session id.
 	 */
 	function mainwp_key_maker_get_session_id() {
+
+		/**
+		 * MainWP Key Maker session ID.
+         *
+         * @global string $mainwp_key_maker_session_id
+		 */
 		global $mainwp_key_maker_session_id;
 
 		// We use global so this happen only once	.
@@ -184,6 +190,12 @@ if ( ! function_exists( 'wp_verify_nonce' ) ) :
 	 *                   0-12 hours ago, 2 if the nonce is valid and generated between 12-24 hours ago.
 	 */
     function wp_verify_nonce( $nonce, $action = - 1 ) {
+
+	    /**
+	     * MainWP Key Maker session ID.
+	     *
+	     * @global string $mainwp_key_maker_session_id
+	     */
 		global $mainwp_key_maker_session_id;
 
 		if ( ! empty( $mainwp_key_maker_session_id ) ) {
@@ -377,6 +389,11 @@ class MainWP_Key_Maker {
 	 * Display content for admin bar button.
 	 */
 	public function toolbar() {
+		/**
+		 * MainWP Key Maker session ID.
+		 *
+		 * @global string $mainwp_key_maker_session_id
+		 */
 		global $mainwp_key_maker_session_id;
 
 		// Check if we have anything to display.
