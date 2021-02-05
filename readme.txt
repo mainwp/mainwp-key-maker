@@ -8,7 +8,7 @@ Plugin URI: https://mainwp.com
 Requires at least: 3.6
 Tested up to: 5.6.1
 Requires PHP: 7.0
-Stable tag: 1.1
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,7 +32,10 @@ Install the Key Maker plugin on any WordPress site to quickly copy form settings
 
 == Changelog ==
 
-= 1.0 - 11-10-2017 =
+= 1.2 - 2-5-2021 =
+* Fixed: An issue with the Copy to Clipboard button
+
+= 1.1 - 11-10-2017 =
 * Fixed: An issue with creating keys on sites with redirection rules in place
 * Updated: Plugin info
 
