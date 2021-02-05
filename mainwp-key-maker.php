@@ -1,13 +1,11 @@
 <?php
-/** MainWP Key Maker.*/
-
 /*
 	Plugin Name: MainWP Key Maker
 	Plugin URI: https://mainwp.com/
 	Description: Easily convert a form into a "key" to use with the MainWP Bulk Settings Manager Extension
 	Author: MainWP
 	Author URI: https://mainwp.com
-	Version: 1.1
+	Version: 1.2
  */
 
 // Check whether we made a redirection in this session.
@@ -314,8 +312,7 @@ class MainWP_Key_Maker {
 		wp_register_script( 'mainwp-key-maker-colorbox', plugins_url( '/js/jquery.colorbox-min.js', __FILE__ ), array( 'jquery' ) );
 		wp_enqueue_script( 'mainwp-key-maker-colorbox' );
 
-		wp_register_script( 'mainwp-key-maker-zeroclipboard', plugins_url( '/js/ZeroClipboard.min.js', __FILE__ ), array( 'jquery' ) );
-		wp_enqueue_script( 'mainwp-key-maker-zeroclipboard' );
+		wp_enqueue_script( 'mainwp-clipboard', plugins_url( '/js/clipboard.min.js', __FILE__ ), array( 'jquery' ) );
 
 		wp_register_style( 'mainwp-key-maker-colorbox', plugins_url( '/css/colorbox.css', __FILE__ ) );
 		wp_enqueue_style( 'mainwp-key-maker-colorbox' );
@@ -341,37 +338,18 @@ class MainWP_Key_Maker {
 			}
 		</style>
 		<script>
-			jQuery(function () {
-				ZeroClipboard.config( { swfPath: "<?php echo plugins_url( '/js/ZeroClipboard.swf', __FILE__ ); ?>" } );
-
-				var client = new ZeroClipboard(jQuery(".mainwp-key-maker-textarea"));
-
-				client.on('ready', function (event) {
-					client.on("copy", function (event) {
-						event.clipboardData.setData("text/plain", event.target.innerHTML);
-					});
-
-					client.on('aftercopy', function (event) {
-						jQuery("#" + event.target.id + "-button").val('<?php _e('Copied to Clipboard!', 'mainwp-key-maker'); ?>');
-						jQuery("#" + event.target.id + "-button").removeClass('button-primary');
+			jQuery( document ).ready( function ($) {
+				new ClipboardJS('.mainwp-key-maker-copy-button');
+				//Copy to clipboard.
+				jQuery(document).on('click', '.mainwp-key-maker-copy-button', function () {		
+					var btn = this;
+					jQuery(btn).val('<?php _e('Copied to Clipboard!', 'mainwp-key-maker'); ?>');
+					jQuery(btn).removeClass('button-primary');
 						setInterval(function () {
-							jQuery("#" + event.target.id + "-button").val('<?php _e('Copy to Clipboard', 'mainwp-key-maker'); ?>');
-							jQuery("#" + event.target.id + "-button").addClass('button-primary');
+						jQuery(btn).val('<?php _e('Copy to Clipboard', 'mainwp-key-maker'); ?>');
+						jQuery(btn).addClass('button-primary');
 						}, 3000);
-					});
-				});
-
-				var client2 = new ZeroClipboard(jQuery(".mainwp-key-maker-copy-button"));
-
-				client2.on('ready', function (event) {
-					client2.on('aftercopy', function (event) {
-						event.target.value = '<?php _e('Copied to Clipboard!', 'mainwp-key-maker'); ?>';
-						event.target.classList.remove('button-primary');
-						setInterval(function () {
-							event.target.value = '<?php _e('Copy to Clipboard', 'mainwp-key-maker'); ?>';
-							event.target.classList.add('button-primary');
-						}, 3000);
-					});
+					return false;
 				});
 
 				jQuery("#wp-admin-bar-mainwp-key-maker-adminbar-node a").colorbox({inline: true, width: "1230px"});
@@ -453,7 +431,7 @@ class MainWP_Key_Maker {
 										</a>
 										<input type="submit"
 											   id="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>-button"
-											   data-clipboard-target="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>"
+											   data-clipboard-target="#mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>"
 											   class="mainwp-key-maker-copy-button button button-primary"
 											   value="<?php _e( 'Copy to Clipboard', 'mainwp-key-maker' ); ?>">
 									</span>
@@ -514,7 +492,7 @@ class MainWP_Key_Maker {
 								</a>
 								<input type="submit"
 									   id="mainwp-key-maker-textarea-button"
-									   data-clipboard-target="mainwp-key-maker-textarea"
+									   data-clipboard-target="#mainwp-key-maker-textarea"
 									   class="mainwp-key-maker-copy-button button button-primary"
 									   value="<?php _e('Copy to clipboard', 'mainwp-key-maker'); ?>">
 							</span>
