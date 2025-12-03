@@ -1,11 +1,14 @@
 <?php
-/*
-	Plugin Name: MainWP Key Maker
-	Plugin URI: https://mainwp.com/
-	Description: Easily convert a form into a "key" to use with the MainWP Bulk Settings Manager Extension
-	Author: MainWP
-	Author URI: https://mainwp.com
-	Version: 1.2
+/**
+ * Plugin Name: MainWP Key Maker
+ * Plugin URI: https://mainwp.com/
+ * Description: Easily convert a form into a "key" to use with the MainWP Bulk Settings Manager Extension
+ * Author: MainWP
+ * Author URI: https://mainwp.com
+ * Version: 1.3
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: mainwp-key-maker
  */
 
 // Check whether we made a redirection in this session.
@@ -29,14 +32,14 @@ if ( ! function_exists( "mainwp_key_maker_get_session_id" ) ) {
 		global $mainwp_key_maker_session_id;
 
 		// We use global so this happen only once	.
-		if (empty($mainwp_key_maker_session_id)) {
+		if ( empty( $mainwp_key_maker_session_id ) ) {
 			if ( defined( "AUTH_COOKIE" ) && isset( $_COOKIE[ AUTH_COOKIE ] )) {
 				// Different users can share one account - so use session id
 				$cookie_elements = explode( '|', $_COOKIE[ AUTH_COOKIE ] );
 				if ( isset( $cookie_elements[2] ) ) {
 					$mainwp_key_maker_session_id = substr( (string) $cookie_elements[2], 0, 30 );
 				}
-			} else if ( defined( "SECURE_AUTH_COOKIE" ) && isset( $_COOKIE[ SECURE_AUTH_COOKIE ] )) {
+			} else if ( defined( "SECURE_AUTH_COOKIE" ) && isset( $_COOKIE[ SECURE_AUTH_COOKIE ] ) ) {
 				// Different users can share one account - so use session id
 				$cookie_elements = explode( '|', $_COOKIE[ SECURE_AUTH_COOKIE ] );
 				if ( isset( $cookie_elements[2] ) ) {
@@ -56,10 +59,10 @@ if ( ! function_exists( "mainwp_key_maker_store_request" ) ) {
      */
 	function mainwp_key_maker_store_request( $temp_saving = false ) {
 
-	    /**
+	/**
          * @global string $mainwp_key_maker_session_id MainWP Key Maker session ID.
          * @global bool $mainwp_key_maker_is_redirect Whether this is a redirect.
-         */
+	 */
 		global $mainwp_key_maker_session_id, $mainwp_key_maker_is_redirect;
 
 		mainwp_key_maker_get_session_id();
@@ -73,17 +76,17 @@ if ( ! function_exists( "mainwp_key_maker_store_request" ) ) {
 			}
 
 			$saved_datas = get_transient( 'mainwp_eir_' . $mainwp_key_maker_session_id );
-
+			
             if ( $saved_datas === false ) {
 				$saved_datas = array();
 			}
             
             $previous_datas = array();
             
-            if (!$temp_saving) {
+            if ( !$temp_saving ) {
                 foreach ( $saved_datas as $data_counter => $data ) {
-                    if (isset($data['_temp_saving'])) {
-                                continue; // avoid.
+                    if ( isset( $data['_temp_saving'] ) ) {
+						continue; // avoid.
                     }
                     $previous_datas[] = $data;
                 }                    
@@ -117,7 +120,7 @@ if ( ! function_exists( 'wp_redirect' ) ) :
 	/**
 	 * Redirects to another page
 	 *  Additionally, stores $_GET, $_POST and url in transient.
-     *
+	 *
 	 * @since 1.5.1
 	 *
 	 * @global bool $is_IIS
@@ -127,7 +130,7 @@ if ( ! function_exists( 'wp_redirect' ) ) :
 	 *
 	 * @return bool False if $location is not provided, true otherwise.
 	 */
-    function wp_redirect( $location, $status = 302 ) {
+	function wp_redirect( $location, $status = 302 ) {
         
         /** @global object $is_IIS IIS instance. */
 		global $is_IIS;
@@ -187,7 +190,7 @@ if ( ! function_exists( 'wp_verify_nonce' ) ) :
 	 * @return false|int False if the nonce is invalid, 1 if the nonce is valid and generated between
 	 *                   0-12 hours ago, 2 if the nonce is valid and generated between 12-24 hours ago.
 	 */
-    function wp_verify_nonce( $nonce, $action = - 1 ) {
+	function wp_verify_nonce( $nonce, $action = - 1 ) {
 
 	    /**
 	     * MainWP Key Maker session ID.
@@ -260,14 +263,14 @@ class MainWP_Key_Maker {
     /**
      * MainWP_Key_Maker constructor.
      */
-    public function __construct() {
+	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
 	}
 
     /**
      * Initiate
      */
-    public function init() {
+	public function init() {
 		mainwp_key_maker_get_session_id();
 
 		if ( ! current_user_can( 'manage_options' ) || ! is_admin() ) {
@@ -343,15 +346,15 @@ class MainWP_Key_Maker {
 				//Copy to clipboard.
 				jQuery(document).on('click', '.mainwp-key-maker-copy-button', function () {		
 					var btn = this;
-					jQuery(btn).val('<?php _e('Copied to Clipboard!', 'mainwp-key-maker'); ?>');
+					jQuery(btn).val('<?php echo esc_js( __('Copied to Clipboard!', 'mainwp-key-maker') ); ?>');
 					jQuery(btn).removeClass('button-primary');
-						setInterval(function () {
-						jQuery(btn).val('<?php _e('Copy to Clipboard', 'mainwp-key-maker'); ?>');
+					setInterval(function () {
+						jQuery(btn).val('<?php echo esc_js( __('Copy to Clipboard', 'mainwp-key-maker') ); ?>');
 						jQuery(btn).addClass('button-primary');
-						}, 3000);
+					}, 3000);
 					return false;
 				});
-
+				
 				jQuery("#wp-admin-bar-mainwp-key-maker-adminbar-node a").colorbox({inline: true, width: "1230px"});
 
 				jQuery(".mainwp-key-maker-debug-a").on("click", function () {
@@ -378,12 +381,12 @@ class MainWP_Key_Maker {
 		$is_any_info = false;
 		$is_there_pre_request = false;
 		?>
-		<div style="display:none;">
+		<div style="display:none;">		
 			<div id="mainwp-key-maker-box">
 				<span style="float: right;">
-					<a href="https://mainwp.com" target="_blank" title="MainWP"><img style="height: 40px; margin-right: 15px;" src="<?php echo plugins_url('images/logo.png', __FILE__); ?>" alt="MainWP" /></a>
+					<a href="https://mainwp.com" target="_blank" title="MainWP"><img style="height: 40px; margin-right: 15px;" src="<?php echo esc_url( plugins_url( 'images/logo.png', __FILE__ ) ); ?>" alt="MainWP" /></a>
 				</span>
-				<h1><?php _e( 'MainWP Key Maker', 'mainwp-key-maker'); ?></h1>
+				<h1><?php esc_html_e( 'MainWP Key Maker', 'mainwp-key-maker' ); ?></h1>
 				<div style="clear: both;"></div>
 				<?php
 
@@ -413,49 +416,34 @@ class MainWP_Key_Maker {
 								if ( $is_there_pre_request ):
 									?>
 									<div class="mainwp-km-info">
-										<em><?php _e('The "Verify Form Fields and Values" button allows you to tell if the Key will contain the information you want.', 'mainwp-key-maker'); ?></em><br/>
-										<em><?php _e('If it does not, you may need to submit the form in order for the Key Maker to be able to correctly gather the form fields and values.', 'mainwp-key-maker'); ?></em>
+										<em><?php esc_html_e( 'The "Verify Form Fields and Values" button allows you to tell if the Key will contain the information you want.', 'mainwp-key-maker' ); ?></em><br/>
+										<em><?php esc_html_e( 'If it does not, you may need to submit the form in order for the Key Maker to be able to correctly gather the form fields and values.', 'mainwp-key-maker' ); ?></em>
 									</div>
 									<?php
 								endif;
 								?>
 								<p>
-								<h2 style="margin-bottom: .3em;"><?php _e( 'Post-submission Request', 'mainwp-key-maker' ); ?></h2>
-									<em>( <?php echo date_i18n( "d-m-Y H:i:s", $previous_data['time'] ); ?> )</em>
-									<?php echo( isset( $previous_data['url'] ) ? esc_html( $previous_data['url'] ) : __( 'Unknown url', 'mainwp-key-maker' ) ); ?>
+								<h2 style="margin-bottom: .3em;"><?php esc_html_e( 'Post-submission Request', 'mainwp-key-maker' ); ?></h2>
+									<em>( <?php echo esc_html( date_i18n( "d-m-Y H:i:s", $previous_data['time'] ) ); ?> )</em>
+									<?php echo( isset( $previous_data['url'] ) ? esc_html( $previous_data['url'] ) : esc_html__( 'Unknown URL', 'mainwp-key-maker' ) ); ?>
 									<span style="float: right; margin-right: 1.5em;">
-										<a href="#"
-										   class="mainwp-key-maker-debug-a button"
-										   style="text-decoration: none;"
-										   ids="<?php echo esc_attr( $previous_counter ); ?>"><?php _e( 'Verify Form Fields and Values', 'mainwp-key-maker' ); ?>
+										<a href="#" class="mainwp-key-maker-debug-a button" style="text-decoration: none;" ids="<?php echo esc_attr( $previous_counter ); ?>">
+											<?php esc_html_e( 'Verify Form Fields and Values', 'mainwp-key-maker' ); ?>
 										</a>
-										<input type="submit"
-											   id="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>-button"
-											   data-clipboard-target="#mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>"
-											   class="mainwp-key-maker-copy-button button button-primary"
-											   value="<?php _e( 'Copy to Clipboard', 'mainwp-key-maker' ); ?>">
+										<input type="submit" id="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>-button" data-clipboard-target="#mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>" class="mainwp-key-maker-copy-button button button-primary" value="<?php esc_attr_e( 'Copy to Clipboard', 'mainwp-key-maker' ); ?>">
 									</span>
 								</p>
-								<div id="mainwp-key-maker-debug-<?php echo esc_attr( $previous_counter ); ?>"
-								     style="display:none; width: 1170px !important; margin-bottom: 1em;"
-								     class="postbox">
+								<div id="mainwp-key-maker-debug-<?php echo esc_attr( $previous_counter ); ?>" style="display:none; width: 1170px !important; margin-bottom: 1em;" class="postbox">
 									<div class="inside">
-										<pre><?php echo $this->custom_print_r( $previous_data, $nonce ); ?></pre>
+										<pre><?php echo $this->custom_print_r( $previous_data, $nonce ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is escaped within custom_print_r() via esc_html() ?></pre>
 									</div>
 								</div>
 
-								<textarea rows="12"
-								          cols="90"
-								          style="width: 1170px;"
-								          class="mainwp-key-maker-textarea"
-								          id="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>"
-								          readonly><?php echo esc_textarea( $this->parse_data( $previous_data, $nonce ) ); ?></textarea>
+								<textarea rows="12" cols="90" style="width: 1170px;" class="mainwp-key-maker-textarea" id="mainwp-key-maker-textarea-previous-<?php echo esc_attr( $previous_counter ); ?>" readonly><?php echo esc_textarea( $this->parse_data( $previous_data, $nonce ) ); ?></textarea>
 							</div>
 							<?php
 						endif;
 					endforeach;
-
-
 				}
 
 				$current_data         = array();
@@ -466,62 +454,47 @@ class MainWP_Key_Maker {
 				?>
 				<div style="padding-bottom: 1em; margin-bottom: 1px Solid #000;">
 					<?php
-					if (!empty($current_data['post']) || !empty($current_data['get'])):
+					if ( !empty($current_data['post'] ) || !empty( $current_data['get'] ) ):
 						$is_any_info = true;
 					?>
-						<?php
-							if ( ! $is_there_pre_request ):
-								?>
-								<div class="mainwp-km-info">
-									<em><?php _e('The "Verify Form Fields and Values" button allows you to tell if the Key will contain the information you want.', 'mainwp-key-maker'); ?></em><br/>
-									<em><?php _e('If it does not, you may need to submit the form in order for the Key Maker to be able to correctly gather the form fields and values.', 'mainwp-key-maker'); ?></em>
-								</div>
-								<?php
-							endif;
-						?>
-						<p>
-						<h2 style="margin-bottom: .3em;"><?php _e('Pre-submission Request', 'mainwp-key-maker'); ?></h2>
-						<em>( <?php echo date_i18n("d-m-Y H:i:s", $current_data['time']); ?> )</em>
-						<?php echo esc_html($current_data['url']); ?>
-							<span style="float: right; margin-right: 1.5em;">
-							  <a
-									href="#"
-									class="mainwp-key-maker-debug-a button"
-									ids="current"
-									style="text-decoration: none;"><?php _e('Verify Form Fields and Values', 'mainwp-key-maker'); ?>
-								</a>
-								<input type="submit"
-									   id="mainwp-key-maker-textarea-button"
-									   data-clipboard-target="#mainwp-key-maker-textarea"
-									   class="mainwp-key-maker-copy-button button button-primary"
-									   value="<?php _e('Copy to clipboard', 'mainwp-key-maker'); ?>">
-							</span>
-						</p>
-
-						<div id="mainwp-key-maker-debug-current"
-							 style="display:none; width: 1170px !important; margin-bottom: 1em;"
-							 class="postbox">
-							<div class="inside">
-								<pre><?php echo $this->custom_print_r($current_data, $nonce); ?></pre>
-							</div>
-						</div>
-
-
-						<textarea rows="12"
-								  cols="90"
-								  style="width: 1170px;"
-								  class="mainwp-key-maker-textarea"
-								  id="mainwp-key-maker-textarea"
-								  readonly><?php echo esc_textarea($this->parse_data($current_data, $nonce)); ?></textarea>
 					<?php
-					endif;
-
-					if ( ! $is_any_info ):
-						?>
-						<div class="mainwp-km-info"><?php _e( 'No form detected. You may have to submit the form before Key Maker is able to find the form and make the Key.', 'mainwp-key-maker' ); ?></div>
-						<?php
-					endif;
+						if ( ! $is_there_pre_request ):
+							?>
+							<div class="mainwp-km-info">
+								<em><?php esc_html_e( 'The "Verify Form Fields and Values" button allows you to tell if the Key will contain the information you want.', 'mainwp-key-maker' ); ?></em><br/>
+								<em><?php esc_html_e( 'If it does not, you may need to submit the form in order for the Key Maker to be able to correctly gather the form fields and values.', 'mainwp-key-maker' ); ?></em>
+							</div>
+							<?php
+						endif;
 					?>
+					<p>
+						<h2 style="margin-bottom: .3em;"><?php esc_html_e( 'Pre-submission Request', 'mainwp-key-maker' ); ?></h2>
+						<em>( <?php echo esc_html( date_i18n( "d-m-Y H:i:s", $current_data['time'] ) ); ?> )</em>
+						<?php echo esc_html( $current_data['url'] ); ?>
+						<span style="float: right; margin-right: 1.5em;">
+							<a href="#" class="mainwp-key-maker-debug-a button" ids="current" style="text-decoration: none;"><?php esc_html_e( 'Verify Form Fields and Values', 'mainwp-key-maker' ); ?>
+							</a>
+							<input type="submit" id="mainwp-key-maker-textarea-button" data-clipboard-target="#mainwp-key-maker-textarea" class="mainwp-key-maker-copy-button button button-primary" value="<?php esc_attr_e( 'Copy to clipboard', 'mainwp-key-maker' ); ?>">
+						</span>
+					</p>
+
+					<div id="mainwp-key-maker-debug-current" style="display:none; width: 1170px !important; margin-bottom: 1em;" class="postbox">
+						<div class="inside">
+							<pre><?php echo $this->custom_print_r($current_data, $nonce); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is escaped within custom_print_r() via esc_html() ?></pre>
+						</div>
+					</div>
+
+
+					<textarea rows="12" cols="90" style="width: 1170px;" class="mainwp-key-maker-textarea" id="mainwp-key-maker-textarea" readonly><?php echo esc_textarea( $this->parse_data( $current_data, $nonce ) ); ?></textarea>
+				<?php
+				endif;
+
+				if ( ! $is_any_info ):
+					?>
+					<div class="mainwp-km-info"><?php esc_html_e( 'No form detected. You may have to submit the form before Key Maker is able to find the form and make the Key.', 'mainwp-key-maker' ); ?></div>
+					<?php
+				endif;
+				?>
 				</div>
 			</div>
 		</div>
@@ -532,7 +505,7 @@ class MainWP_Key_Maker {
      * Custom sanitized print_r() function.
      *
      * Print $_GET and $_POST using print_r with XSS protection.
-     *
+	 *
 	 * @param string $data Data to print.
 	 * @param string $nonce Security nonce.
 	 *
@@ -544,7 +517,7 @@ class MainWP_Key_Maker {
 
 	/**
      * Recursive check if nonce field exists in array.
-     *
+	 *
      * @param array $data Data to print.
      * @param string $nonce Security nonce.
 	 *
@@ -570,7 +543,7 @@ class MainWP_Key_Maker {
 
 	/**
      * Parse data in readable format for Skeleton Key.
-     *
+	 *
      * @param array $data Data to print.
      * @param string $nonce Security nonce.
 	 *
@@ -652,7 +625,7 @@ class MainWP_Key_Maker {
 	/**
      * Convert multidimensional array into single dimensional array
      * Something like http[like][array][structure].
-     *
+	 *
 	 * @param array $array Multidimensional array.
 	 * @param string $previous Previous value.
 	 *
