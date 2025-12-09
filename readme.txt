@@ -32,7 +32,7 @@ Install the Key Maker plugin on any WordPress site to quickly copy form settings
 
 == Changelog ==
 
-= 1.3 - 12-3-2025 =
+= 1.3 - 12-9-2025 =
 * Updated: Improved output escaping compliance throughout plugin (WordPress Coding Standards)
 * Updated: Translation and echo statements with proper context-aware escaping functions
 * Updated: Tested up to tag to 6.9
